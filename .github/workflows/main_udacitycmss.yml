@@ -24,13 +24,6 @@ jobs:
         with:
           python-version: '3.10'
 
-      - name: Upgrade pip and setuptools
-        run: |
-          pip install --upgrade pip setuptools
-
-      - name: Install system dependencies
-        run: sudo apt-get install -y unixodbc-dev
-
       - name: Create and start virtual environment
         run: |
           python -m venv venv
@@ -58,7 +51,10 @@ jobs:
     environment:
       name: 'Production'
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
-    
+    permissions:
+      id-token: write #This is required for requesting the JWT
+      contents: read #This is required for actions/checkout
+
     steps:
       - name: Download artifact from build job
         uses: actions/download-artifact@v4
@@ -68,10 +64,18 @@ jobs:
       - name: Unzip artifact for deployment
         run: unzip release.zip
 
+      
+      - name: Login to Azure
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_CA402B044DE744EE96040944A583D359 }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_7C33F57C9259455982522A3531BA36D3 }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_9D713B89B9424BE28AB8514C938086C6 }}
+
       - name: 'Deploy to Azure Web App'
         uses: azure/webapps-deploy@v3
         id: deploy-to-webapp
         with:
           app-name: 'udacitycmss'
           slot-name: 'Production'
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_A3547D0164A045B0A24D29940B1BFED1 }}
+          
