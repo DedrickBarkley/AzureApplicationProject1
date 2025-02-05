@@ -24,6 +24,9 @@ jobs:
         with:
           python-version: '3.10'
 
+      - name: Install ODBC development headers
+        run: sudo apt-get install -y unixodbc-dev
+
       - name: Create and start virtual environment
         run: |
           python -m venv venv
@@ -61,11 +64,10 @@ jobs:
       - name: Unzip artifact for deployment
         run: unzip release.zip
 
-      
       - name: 'Deploy to Azure Web App'
         uses: azure/webapps-deploy@v3
         id: deploy-to-webapp
         with:
           app-name: 'udacitycmss'
           slot-name: 'Production'
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_4FC8AF3CB1BD42C69047818D3AC03CDD }}
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_9698CA10438148BAA38BD400F0D47A05 }}
